@@ -23,11 +23,12 @@
         <!-- ─── PANEL: User ─── -->
         <div id="panel-user" class="panel active">
           <div class="panel-content">
-            <textarea
-              id="description-input"
-              placeholder="Describe a 3D environment in natural language...&#10;&#10;e.g. 'A mountain lake at sunset with pine trees and a wooden cabin by the shore'"
-              rows="5"
-            ></textarea>
+             <label for="description-input" class="field-label">Describe your scene:</label>
+             <div class="input-wrapper">
+               <textarea id="description-input" placeholder="Describe a 3D environment in natural language..." rows="5"></textarea>
+             </div>
+             <div id="char-counter" class="char-counter">0/500</div>
+             <button id="clear-btn" class="btn-secondary">Clear</button>
             <button id="user-submit-btn" class="btn-primary" disabled>Submit to Moderator</button>
             <p id="status-message" class="status-idle">Describe the scene you want to create.</p>
           </div>

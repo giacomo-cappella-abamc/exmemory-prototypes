@@ -99,24 +99,48 @@ tabs.forEach((tab) => {
 
 // ─── User Mode ─────────────────────────────────────────────────────────────
 
-userInput.addEventListener('input', () => {
-  userSubmitBtn.disabled = userInput.value.trim().length === 0;
-});
+// Debounce utility
+function debounce<T extends (...args: any[]) => void>(func: T, wait: number): (...args: Parameters<T>) => void {
+    let timeout: ReturnType<typeof setTimeout>;
+    return (...args: Parameters<T>) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+    };
+}
+
+// Update submit button state with debounce to avoid excessive updates
+const updateSubmitButtonState = debounce(() => {
+    userSubmitBtn.disabled = userInput.value.trim().length === 0;
+}, 150);
+
+userInput.addEventListener('input', updateSubmitButtonState);
 
 userSubmitBtn.addEventListener('click', () => {
-  currentUserDescription = userInput.value.trim();
-  if (!currentUserDescription) return;
+    currentUserDescription = userInput.value.trim();
+    if (!currentUserDescription) return;
 
-  statusMsg.textContent = '✅ Sent to moderator! Switch to "Moderator" tab.';
-  statusMsg.className = 'status-success';
+    statusMsg.textContent = '✅ Sent to moderator! Switch to "Moderator" tab.';
+    statusMsg.className = 'status-success';
 
-  updateModeratorPanel();
+    updateModeratorPanel();
 
-  // Switch to moderator tab
-  tabs.forEach((t) => { t.classList.remove('active'); });
-  document.querySelector<HTMLButtonElement>('.tab[data-mode="moderator"]')?.classList.add('active');
-  Object.values(panels).forEach((el) => { el.classList.remove('active'); });
-  panels.moderator.classList.add('active');
+    // Switch to moderator tab
+    tabs.forEach((t) => { t.classList.remove('active'); });
+    document.querySelector<HTMLButtonElement>('.tab[data-mode="moderator"]')?.classList.add('active');
+    Object.values(panels).forEach((el) => { el.classList.remove('active'); });
+    panels.moderator.classList.add('active');
+});
+
+// Clear button handler
+const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
+clearBtn.addEventListener('click', () => {
+    userInput.value = '';
+    userSubmitBtn.disabled = true;
+    statusMsg.textContent = 'Describe the scene you want to create.';
+    statusMsg.className = 'status-idle';
+    // Also clear moderator reference if needed
+    modUserDesc.innerHTML = '<em>No description yet.</em>';
+    promptPreview.textContent = currentPreset.buildPrompt('a simple 3D scene with some objects');
 });
 
 // ─── Moderator Mode ────────────────────────────────────────────────────────
